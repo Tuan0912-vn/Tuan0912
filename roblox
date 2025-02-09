@@ -1,7 +1,5 @@
 local currentGameId = game.GameId
 
--- ========================= GAMEID AND SCRIPT ACTION CONFIGURATION (OPTIMIZED) =========================
-
 local scriptConfigurations = {
     [1] = { gameIds = {18668065416, 99999183305180, 115815718131154, 73956553001240, 134314141048307},
             action = function()
