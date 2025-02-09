@@ -1,0 +1,57 @@
+local currentGameId = game.GameId
+
+-- ========================= GAMEID AND SCRIPT ACTION CONFIGURATION (OPTIMIZED) =========================
+
+local scriptConfigurations = {
+    [1] = {
+        gameIds = {18668065416, 99999183305180, 115815718131154, 73956553001240, 134314141048307},
+        action = function()
+            loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e1cfd93b113a79773d93251b61af1e2f.lua"))()
+        end },
+   
+    [2] = { gameIds = {  }, 
+            action = function()
+              
+        end },    
+        
+    [3]  = { gameIds = {  }, 
+            action = function()
+              
+        end }, 
+    [4]   = { gameIds = {  }, 
+            action = function()
+              
+        end }, 
+    [5]  = { gameIds = {  }, 
+            action = function()
+              
+        end }, 
+}
+
+-- ========================= GAMEID CHECK FUNCTION (KEPT AS IS - OPTIMIZED FOR TABLE) =========================
+local function checkGameId(gameId, gameIdList)
+    for _, idInList in ipairs(gameIdList) do
+        if gameId == idInList then
+            return true
+        end
+    end
+    return false
+end
+
+-- ========================= RUN CORRESPONDING SCRIPT (LOOP OPTIMIZED) =========================
+local scriptHasRun = false
+for scriptNumber = 1, 5 do
+    local config = scriptConfigurations[scriptNumber]
+    if config and checkGameId(currentGameId, config.gameIds) then
+        local action = config.action
+        if action then
+            action() -- Directly call action function
+            scriptHasRun = true
+            break -- Exit early once a script has been run
+        end
+    end
+end
+
+if not scriptHasRun then
+    print("No script ran for this GameId.")
+end
