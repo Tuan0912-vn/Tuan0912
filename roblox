@@ -3,15 +3,14 @@ local currentGameId = game.GameId
 -- ========================= GAMEID AND SCRIPT ACTION CONFIGURATION (OPTIMIZED) =========================
 
 local scriptConfigurations = {
-    [1] = {
-        gameIds = {18668065416, 99999183305180, 115815718131154, 73956553001240, 134314141048307},
-        action = function()
+    [1] = { gameIds = {18668065416, 99999183305180, 115815718131154, 73956553001240, 134314141048307},
+            action = function()
             loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e1cfd93b113a79773d93251b61af1e2f.lua"))()
         end },
    
-    [2] = { gameIds = {  }, 
+    [2] = { gameIds = {2474168535}, 
             action = function()
-              
+             loadstring(game:HttpGet("https://raw.githubusercontent.com/Sebiy/WestWare/main/WestWareScript.lua", true))()
         end },    
         
     [3]  = { gameIds = {  }, 
