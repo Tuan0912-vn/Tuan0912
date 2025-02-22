@@ -11,13 +11,14 @@ local scriptConfigurations = {
              loadstring(game:HttpGet("https://raw.githubusercontent.com/Sebiy/WestWare/main/WestWareScript.lua", true))()
         end },    
         
-    [3]  = { gameIds = {  }, 
+    [3]  = { gameIds = {6447798030}, 
             action = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/VisualBETA/Loader/refs/heads/main/Loader.lua'))()
               
         end }, 
-    [4]   = { gameIds = {  }, 
+    [4]   = { gameIds = {3840352284}, 
             action = function()
-              
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/VisualBETA/Loader/refs/heads/main/Loader.lua'))()
         end }, 
     [5]  = { gameIds = {  }, 
             action = function()
