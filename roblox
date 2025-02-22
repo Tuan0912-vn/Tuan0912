@@ -13,7 +13,7 @@ local scriptConfigurations = {
         
     [3]  = { gameIds = {6447798030}, 
             action = function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/VisualBETA/Loader/refs/heads/main/Loader.lua'))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Nadir3709/ScriptHub/main/Loader"))()
               
         end }, 
     [4]   = { gameIds = {3840352284}, 
