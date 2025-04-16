@@ -1,0 +1,68 @@
+local plr = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+gui.Name = "AutoJumpUI"
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 220, 0, 160)
+frame.Position = UDim2.new(0.5, -110, 0.5, -80)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.Active, frame.Draggable = true, true
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "AutoJump"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+
+local input = Instance.new("TextBox", frame)
+input.Size = UDim2.new(0.8, 0, 0, 30)
+input.Position = UDim2.new(0.1, 0, 0.3, 0)
+input.Text = "3"
+input.PlaceholderText = "Jump interval"
+input.BackgroundColor3 = Color3.new(1,1,1)
+input.TextColor3 = Color3.new(0,0,0)
+input.Font = Enum.Font.SourceSans
+input.TextSize = 18
+
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0.8, 0, 0, 30)
+toggle.Position = UDim2.new(0.1, 0, 0.55, 0)
+toggle.Text = "Stop AutoJump"
+toggle.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+toggle.TextColor3 = Color3.new(1,1,1)
+toggle.Font = Enum.Font.SourceSansBold
+toggle.TextSize = 18
+
+local countLbl = Instance.new("TextLabel", frame)
+countLbl.Size = UDim2.new(0.8, 0, 0, 30)
+countLbl.Position = UDim2.new(0.1, 0, 0.8, 0)
+countLbl.BackgroundTransparency = 1
+countLbl.Text = "Jumps: 0"
+countLbl.TextColor3 = Color3.new(1,1,1)
+countLbl.Font = Enum.Font.SourceSansBold
+countLbl.TextSize = 18
+
+-- Logic
+local jumping, count, interval = true, 0, 3
+toggle.MouseButton1Click:Connect(function()
+	jumping = not jumping
+	toggle.Text = jumping and "Stop AutoJump" or "Start AutoJump"
+end)
+
+input.FocusLost:Connect(function()
+	local val = tonumber(input.Text)
+	if val and val > 0 then interval = val else input.Text = ""; input.PlaceholderText = "Invalid!" end
+end)
+
+task.spawn(function()
+	while true do
+		if jumping and plr.Character and plr.Character:FindFirstChildOfClass("Humanoid") then
+			plr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			count += 1
+			countLbl.Text = "Jumps: " .. count
+		end
+		task.wait(interval)
+	end
+end)
