@@ -1,0 +1,109 @@
+-- LocalScript (đặt trong StarterPlayerScripts)
+
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = Players.LocalPlayer
+
+local delayTime = 5
+local isRunning = false
+local autoMoveThread = nil
+
+-- Create UI
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.ResetOnSpawn = false
+gui.Name = "AutoMoveUI"
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 160, 0, 60)
+frame.Position = UDim2.new(1, -170, 1, -70)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundTransparency = 0.1
+frame.BorderSizePixel = 0
+frame.ClipsDescendants = true
+frame.Name = "Container"
+frame.AnchorPoint = Vector2.new(1, 1)
+frame.AutomaticSize = Enum.AutomaticSize.None
+frame:SetAttribute("Corner", true)
+
+-- Bo góc
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
+
+-- Padding
+local padding = Instance.new("UIPadding", frame)
+padding.PaddingTop = UDim.new(0, 5)
+padding.PaddingBottom = UDim.new(0, 5)
+padding.PaddingLeft = UDim.new(0, 8)
+padding.PaddingRight = UDim.new(0, 8)
+
+-- Layout ngang
+local layout = Instance.new("UIListLayout", frame)
+layout.FillDirection = Enum.FillDirection.Horizontal
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+layout.Padding = UDim.new(0, 6)
+
+-- Input Box
+local box = Instance.new("TextBox", frame)
+box.Size = UDim2.new(0.5, -3, 1, -10)
+box.Text = tostring(delayTime)
+box.TextScaled = true
+box.Font = Enum.Font.Gotham
+box.TextColor3 = Color3.fromRGB(20, 20, 20)
+box.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+box.ClearTextOnFocus = false
+local boxCorner = Instance.new("UICorner", box)
+boxCorner.CornerRadius = UDim.new(0, 6)
+
+-- Toggle Button
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0.5, -3, 1, -10)
+toggle.Text = "Start"
+toggle.TextScaled = true
+toggle.Font = Enum.Font.GothamBold
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.BackgroundColor3 = Color3.fromRGB(100, 170, 100)
+local toggleCorner = Instance.new("UICorner", toggle)
+toggleCorner.CornerRadius = UDim.new(0, 6)
+
+-- Phím nhấn A / D
+local function pressKey(key)
+	VirtualInputManager:SendKeyEvent(true, key, false, game)
+	task.wait(0.1)
+	VirtualInputManager:SendKeyEvent(false, key, false, game)
+end
+
+-- AutoMove logic
+local function startAutoMove()
+	if autoMoveThread and coroutine.status(autoMoveThread) == "running" then return end
+
+	autoMoveThread = coroutine.create(function()
+		while isRunning do
+			pressKey("A")
+			task.wait(0.5)
+			pressKey("D")
+			task.wait(delayTime)
+		end
+	end)
+	coroutine.resume(autoMoveThread)
+end
+
+-- Handle input
+box.FocusLost:Connect(function()
+	local val = tonumber(box.Text)
+	if val and val > 0 then
+		delayTime = val
+	else
+		box.Text = tostring(delayTime)
+	end
+end)
+
+-- Toggle on/off
+toggle.MouseButton1Click:Connect(function()
+	isRunning = not isRunning
+	toggle.Text = isRunning and "Stop" or "Start"
+	toggle.BackgroundColor3 = isRunning and Color3.fromRGB(170, 80, 80) or Color3.fromRGB(100, 170, 100)
+	if isRunning then
+		startAutoMove()
+	end
+end)
