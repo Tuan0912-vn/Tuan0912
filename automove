@@ -5,7 +5,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
 local delayTime = 5
-local isRunning = false
+local isRunning = true  -- Đặt là true để tự động bật khi chạy
 local autoMoveThread = nil
 
 -- Create UI
@@ -58,11 +58,11 @@ boxCorner.CornerRadius = UDim.new(0, 6)
 -- Toggle Button
 local toggle = Instance.new("TextButton", frame)
 toggle.Size = UDim2.new(0.5, -3, 1, -10)
-toggle.Text = "Start"
+toggle.Text = "Stop"  -- Đặt là "Stop" khi script tự động bật
 toggle.TextScaled = true
 toggle.Font = Enum.Font.GothamBold
 toggle.TextColor3 = Color3.new(1, 1, 1)
-toggle.BackgroundColor3 = Color3.fromRGB(100, 170, 100)
+toggle.BackgroundColor3 = Color3.fromRGB(170, 80, 80)
 local toggleCorner = Instance.new("UICorner", toggle)
 toggleCorner.CornerRadius = UDim.new(0, 6)
 
@@ -107,3 +107,6 @@ toggle.MouseButton1Click:Connect(function()
 		startAutoMove()
 	end
 end)
+
+-- Gọi hàm để bắt đầu AutoMove khi chạy script
+startAutoMove()
