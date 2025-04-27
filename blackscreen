@@ -1,0 +1,50 @@
+-- BlackScreenController.lua
+
+-- Tạo một ScreenGui riêng
+local blackScreenGui = Instance.new("ScreenGui")
+blackScreenGui.Name = "BlackScreenLayer"
+blackScreenGui.ResetOnSpawn = false
+blackScreenGui.IgnoreGuiInset = true
+blackScreenGui.DisplayOrder = -1000 -- Để nằm dưới UI khác
+blackScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Tạo màn hình đen
+local blackScreen = Instance.new("Frame")
+blackScreen.Size = UDim2.new(1, 0, 1, 0)
+blackScreen.Position = UDim2.new(0, 0, 0, 0)
+blackScreen.BackgroundColor3 = Color3.new(0, 0, 0)
+blackScreen.BackgroundTransparency = 0 -- Full đen
+blackScreen.Visible = false
+blackScreen.ZIndex = 0 -- thấp nhất
+blackScreen.Parent = blackScreenGui
+
+-- Tạo nút bật tắt nằm trong GUI khác (nằm trên cùng)
+local uiGui = Instance.new("ScreenGui")
+uiGui.Name = "BlackScreenButtonUI"
+uiGui.ResetOnSpawn = false
+uiGui.IgnoreGuiInset = true
+uiGui.DisplayOrder = 1000 -- UI ưu tiên cao
+uiGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(1, -120, 0.5, -25)
+toggleButton.Text = "BlackScreen: OFF"
+toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+toggleButton.TextColor3 = Color3.new(1,1,1)
+toggleButton.ZIndex = 1
+toggleButton.Parent = uiGui
+
+-- Logic bật/tắt
+local isBlackScreenEnabled = false
+
+toggleButton.MouseButton1Click:Connect(function()
+    isBlackScreenEnabled = not isBlackScreenEnabled
+    blackScreen.Visible = isBlackScreenEnabled
+
+    if isBlackScreenEnabled then
+        toggleButton.Text = "BlackScreen: ON"
+    else
+        toggleButton.Text = "BlackScreen: OFF"
+    end
+end)
