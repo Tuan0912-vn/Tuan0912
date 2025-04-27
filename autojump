@@ -1,81 +1,107 @@
-local plr = game.Players.LocalPlayer
+-- LocalScript đặt trong StarterPlayerScripts
 
--- Giao diện chính
-local gui = Instance.new("ScreenGui", plr:WaitForChild("PlayerGui"))
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local player = Players.LocalPlayer
+
+local delayTime = 5 -- delay giữa các lần nhấn Space
+local isRunning = true
+local autoJumpThread = nil
+
+-- Create UI
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.ResetOnSpawn = false
 gui.Name = "AutoJumpUI"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 160, 0, 120)
-frame.Position = UDim2.new(1, -20, 1, -20)
+frame.Size = UDim2.new(0, 160, 0, 60)
+frame.Position = UDim2.new(1, -50, 1, -100)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundTransparency = 0.1
+frame.BorderSizePixel = 0
+frame.Name = "Container"
 frame.AnchorPoint = Vector2.new(1, 1)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-frame.Active, frame.Draggable = true, true
 
--- Tiêu đề
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 24)
-title.BackgroundTransparency = 1
-title.Text = "AutoJump"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
+-- Bo góc
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
 
--- Ô nhập thời gian
-local input = Instance.new("TextBox", frame)
-input.Size = UDim2.new(0.8, 0, 0, 22)
-input.Position = UDim2.new(0.1, 0, 0.3, 0)
-input.Text = "3"
-input.PlaceholderText = "Interval"
-input.BackgroundColor3 = Color3.new(1, 1, 1)
-input.TextColor3 = Color3.new(0, 0, 0)
-input.Font = Enum.Font.SourceSans
-input.TextSize = 16
+-- Padding
+local padding = Instance.new("UIPadding", frame)
+padding.PaddingTop = UDim.new(0, 5)
+padding.PaddingBottom = UDim.new(0, 5)
+padding.PaddingLeft = UDim.new(0, 8)
+padding.PaddingRight = UDim.new(0, 8)
 
--- Nút bật/tắt
+-- Layout ngang
+local layout = Instance.new("UIListLayout", frame)
+layout.FillDirection = Enum.FillDirection.Horizontal
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+layout.Padding = UDim.new(0, 6)
+
+-- Input Box
+local box = Instance.new("TextBox", frame)
+box.Size = UDim2.new(0.5, -3, 1, -10)
+box.Text = tostring(delayTime)
+box.TextScaled = true
+box.Font = Enum.Font.Gotham
+box.TextColor3 = Color3.fromRGB(20, 20, 20)
+box.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+box.ClearTextOnFocus = false
+local boxCorner = Instance.new("UICorner", box)
+boxCorner.CornerRadius = UDim.new(0, 6)
+
+-- Toggle Button
 local toggle = Instance.new("TextButton", frame)
-toggle.Size = UDim2.new(0.8, 0, 0, 22)
-toggle.Position = UDim2.new(0.1, 0, 0.55, 0)
+toggle.Size = UDim2.new(0.5, -3, 1, -10)
 toggle.Text = "Stop"
-toggle.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+toggle.TextScaled = true
+toggle.Font = Enum.Font.GothamBold
 toggle.TextColor3 = Color3.new(1, 1, 1)
-toggle.Font = Enum.Font.SourceSansBold
-toggle.TextSize = 16
+toggle.BackgroundColor3 = Color3.fromRGB(170, 80, 80)
+local toggleCorner = Instance.new("UICorner", toggle)
+toggleCorner.CornerRadius = UDim.new(0, 6)
 
--- Label đếm số lần nhảy
-local countLbl = Instance.new("TextLabel", frame)
-countLbl.Size = UDim2.new(0.8, 0, 0, 20)
-countLbl.Position = UDim2.new(0.1, 0, 0.8, 0)
-countLbl.BackgroundTransparency = 1
-countLbl.Text = "Jumps: 0"
-countLbl.TextColor3 = Color3.new(1, 1, 1)
-countLbl.Font = Enum.Font.SourceSansBold
-countLbl.TextSize = 16
+-- Hàm nhấn phím Space
+local function pressSpace()
+	VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+	task.wait(0.1)
+	VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+end
 
--- Logic AutoJump
-local jumping, count, interval = true, 0, 3
+-- AutoJump logic
+local function startAutoJump()
+	if autoJumpThread and coroutine.status(autoJumpThread) == "running" then return end
 
-toggle.MouseButton1Click:Connect(function()
-	jumping = not jumping
-	toggle.Text = jumping and "Stop" or "Start"
-end)
-
-input.FocusLost:Connect(function()
-	local val = tonumber(input.Text)
-	if val and val > 0 then
-		interval = val
-	else
-		input.Text = ""
-		input.PlaceholderText = "Invalid!"
-	end
-end)
-
-task.spawn(function()
-	while true do
-		if jumping and plr.Character and plr.Character:FindFirstChildOfClass("Humanoid") then
-			plr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-			count += 1
-			countLbl.Text = "Jumps: " .. count
+	autoJumpThread = coroutine.create(function()
+		while isRunning do
+			pressSpace()
+			task.wait(delayTime)
 		end
-		task.wait(interval)
+	end)
+	coroutine.resume(autoJumpThread)
+end
+
+-- Handle input
+box.FocusLost:Connect(function()
+	local val = tonumber(box.Text)
+	if val and val > 0 then
+		delayTime = val
+	else
+		box.Text = tostring(delayTime)
 	end
 end)
+
+-- Toggle on/off
+toggle.MouseButton1Click:Connect(function()
+	isRunning = not isRunning
+	toggle.Text = isRunning and "Stop" or "Start"
+	toggle.BackgroundColor3 = isRunning and Color3.fromRGB(170, 80, 80) or Color3.fromRGB(100, 170, 100)
+	if isRunning then
+		startAutoJump()
+	end
+end)
+
+-- Khởi động AutoJump
+startAutoJump()
