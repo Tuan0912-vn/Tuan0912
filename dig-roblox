@@ -145,6 +145,13 @@ createButton("🔁 Rejoin Server", UDim2.new(0, 10, 0, y), function()
 	TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
 end)
 
+y += 28
+
+-- 🔀 Server Hop (random server khác)
+createButton("🔀 Server Hop", UDim2.new(0, 10, 0, y), function()
+	TeleportService:Teleport(game.PlaceId, player)
+end)
+
 
 
 -- Nút ẩn/hiện toàn bộ frame UI
