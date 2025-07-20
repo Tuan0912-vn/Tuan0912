@@ -1,0 +1,167 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local player = Players.LocalPlayer
+
+-- GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "TPFlyGUI"
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 300)
+frame.Position = UDim2.new(1, -300, 0.45, 0)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+Instance.new("UICorner", frame)
+
+local function createButton(text, pos, onClick)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 200, 0, 25)
+	btn.Position = pos
+	btn.Text = text
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	btn.Parent = frame
+	btn.MouseButton1Click:Connect(onClick)
+	Instance.new("UICorner", btn)
+	return btn
+end
+
+-- Tọa độ các vị trí
+local locations = {
+	["Dino"] = "-6581 247 -2422",
+	["Fox Town"] = "2090 112 -389",
+	["Cinder Shores"] = "1328 78 513",
+	["Rooftop Woodland"] = "3896 226 -380",
+	["Tom's Bakery"] = "5608 250 -82",
+	["Mount Cinder"] = "4531 1101 -1708",
+	["Verdant Vale"] = "3791 82 1673",
+}
+
+local function getRoot(char)
+	return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function tpposition(raw)
+	local args = string.split(raw, " ")
+	if #args < 3 then return end
+	local tpX = tonumber((args[1]:gsub(",", "")))
+	local tpY = tonumber((args[2]:gsub(",", "")))
+	local tpZ = tonumber((args[3]:gsub(",", "")))
+	local char = player.Character
+	if char and getRoot(char) then
+		getRoot(char).CFrame = CFrame.new(tpX, tpY, tpZ)
+	end
+end
+
+-- Nút TP
+local y = 10
+for name, coords in pairs(locations) do
+	createButton("TP to: " .. name, UDim2.new(0, 10, 0, y), function()
+		tpposition(coords)
+	end)
+	y += 28
+end
+
+-- Noclip
+local noclip = false
+local noclipBtn
+noclipBtn = createButton("Noclip: OFF", UDim2.new(0, 10, 0, y), function()
+	noclip = not noclip
+	noclipBtn.Text = "Noclip: " .. (noclip and "ON" or "OFF")
+end)
+y += 28
+
+RunService.Stepped:Connect(function()
+	if noclip and player.Character then
+		for _, v in pairs(player.Character:GetDescendants()) do
+			if v:IsA("BasePart") and v.CanCollide then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+-- Fly
+local flying = false
+local flyBtn
+local function startFly()
+	local char = player.Character
+	local HRP = char and char:FindFirstChild("HumanoidRootPart")
+	if not HRP then return end
+
+	local hum = char:FindFirstChildWhichIsA("Humanoid")
+	if hum then hum.PlatformStand = true end
+
+	local bg = Instance.new("BodyGyro", HRP)
+	bg.P = 9e4
+	bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+	bg.CFrame = HRP.CFrame
+
+	local bv = Instance.new("BodyVelocity", HRP)
+	bv.Velocity = Vector3.zero
+	bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+	local speed = 100
+	local conn
+	conn = RunService.RenderStepped:Connect(function()
+		if not flying then
+			conn:Disconnect()
+			bg:Destroy()
+			bv:Destroy()
+			if hum then hum.PlatformStand = false end
+			return
+		end
+
+		local cam = workspace.CurrentCamera
+		local dir = Vector3.zero
+
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir += cam.CFrame.UpVector end
+		if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir -= cam.CFrame.UpVector end
+
+		bg.CFrame = cam.CFrame
+		bv.Velocity = dir.Magnitude > 0 and dir.Unit * speed or Vector3.zero
+	end)
+end
+
+flyBtn = createButton("Fly: OFF", UDim2.new(0, 10, 0, y), function()
+	flying = not flying
+	flyBtn.Text = "Fly: " .. (flying and "ON" or "OFF")
+	if flying then
+		startFly()
+	end
+end)
+y += 28
+
+-- ✅ Rejoin
+createButton("🔁 Rejoin Server", UDim2.new(0, 10, 0, y), function()
+	TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+end)
+
+
+
+-- Nút ẩn/hiện toàn bộ frame UI
+local toggleFrameBtn = Instance.new("TextButton")
+toggleFrameBtn.Size = UDim2.new(0, 80, 0, 30)
+toggleFrameBtn.Position = UDim2.new(1, -90, 0.5, -15)
+toggleFrameBtn.Text = "👁 Hide UI"
+toggleFrameBtn.TextColor3 = Color3.new(1, 1, 1)
+toggleFrameBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleFrameBtn.Font = Enum.Font.Gotham
+toggleFrameBtn.TextSize = 14
+toggleFrameBtn.Parent = gui
+Instance.new("UICorner", toggleFrameBtn)
+
+local isUIVisible = true
+toggleFrameBtn.MouseButton1Click:Connect(function()
+	isUIVisible = not isUIVisible
+	frame.Visible = isUIVisible
+	toggleFrameBtn.Text = isUIVisible and "👁 Hide UI" or "👁 Show UI"
+end)
