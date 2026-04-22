@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
-local delayTime = 5 -- delay giữa các lần nhấn Space
+local delayTime = 600 -- delay giữa các lần nhấn Space
 local isRunning = true
 local autoJumpThread = nil
 
